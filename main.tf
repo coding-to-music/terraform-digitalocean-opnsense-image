@@ -12,18 +12,18 @@
 
 terraform {
   required_providers {
-    cloudflare = {
-      source = "cloudflare/cloudflare"
-      version = "~> 3.0"
-    }
     digitalocean = {
       source = "digitalocean/digitalocean"
       version = "~> 2.0"
     }
-    http = {
-      source = "hashicorp/http"
-      version = "3.0.1"
-    }
+    # cloudflare = {
+    #   source = "cloudflare/cloudflare"
+    #   version = "~> 3.0"
+    # }
+    # http = {
+    #   source = "hashicorp/http"
+    #   version = "3.0.1"
+    # }
   }
 }
 provider "digitalocean" {
@@ -62,10 +62,10 @@ resource "random_string" "build-id" {
   length = 6
   lower = false
   upper = true
-  number = true
+  numeric = true
   special = false
 
-  depends_on = [ "null_resource.local-tests" ]
+  depends_on = [ null_resource.local-tests ]
 }
 
 # Generate a temporary ssh keypair to bootstrap this instance
@@ -74,7 +74,7 @@ resource "tls_private_key" "terraform-bootstrap-sshkey" {
   algorithm = "RSA"
   rsa_bits = "4096"
 
-  depends_on = ["null_resource.local-tests"]
+  depends_on = [null_resource.local-tests]
 }
 
 # attach the temporary sshkey to the provider account for this image build
@@ -86,7 +86,7 @@ resource "digitalocean_ssh_key" "terraform-bootstrap-sshkey" {
   name = "terraform-bootstrap-sshkey-${random_string.build-id.result}"
   public_key = "${tls_private_key.terraform-bootstrap-sshkey.public_key_openssh}"
 
-  depends_on = [ "random_string.build-id", "tls_private_key.terraform-bootstrap-sshkey" ]
+  depends_on = [ random_string.build-id, tls_private_key.terraform-bootstrap-sshkey ]
 }
 
 # FreeBSD uses configinit (not cloud-init) which interprets the user-data based on the first few bytes
@@ -96,7 +96,7 @@ data "template_file" "instance-userdata" {
   template = "#!/bin/sh\necho -n '${base64gzip(file("${path.module}/data/user-data-digitalocean.sh"))}' | b64decode -r | gunzip | /bin/sh"
   vars = { }
 
-  depends_on = ["null_resource.local-tests"]
+  depends_on = [null_resource.local-tests]
 }
 
 # start this temporary build instance
@@ -107,9 +107,10 @@ resource "digitalocean_droplet" "build-instance" {
   region = "${var.digitalocean_droplet_region}"
   size = "${var.digitalocean_droplet_size}"
   backups = false     # pointless for this short-lived instance
-  monitoring = false  # pointless for this short-lived instance
+  monitoring = true  # pointless for this short-lived instance
   ipv6 = "${var.digitalocean_ipv6}"
-  private_networking = "${var.digitalocean_private_networking}"
+  # private_networking = "${var.digitalocean_private_networking}"
+  vpc_uuid = "${var.digitalocean_private_networking}"
   ssh_keys = [ "${digitalocean_ssh_key.terraform-bootstrap-sshkey.id}" ]
 
   user_data = "${data.template_file.instance-userdata.rendered}"
@@ -130,7 +131,7 @@ resource "digitalocean_droplet" "build-instance" {
     ]
   }
 
-  depends_on = [ "digitalocean_ssh_key.terraform-bootstrap-sshkey" ]
+  depends_on = [ digitalocean_ssh_key.terraform-bootstrap-sshkey ]
 }
 
 # render the config.xml with an (optionally different from default: opnsense) root passwd of the image builders choice
@@ -179,7 +180,7 @@ resource "null_resource" "opnsense-install-action" {
     ]
   }
 
-  depends_on = [ "digitalocean_droplet.build-instance" ]
+  depends_on = [ digitalocean_droplet.build-instance ]
 }
 
 # do a final cleanup just before the instance does a shutdown-poweroff
@@ -207,7 +208,7 @@ resource "null_resource" "cleanup-shutdown-action" {
     ]
   }
 
-  depends_on = [ "null_resource.opnsense-install-action" ]
+  depends_on = [ null_resource.opnsense-install-action ]
 }
 
 # query the provider API until this instance is no longer active
@@ -224,7 +225,7 @@ resource "null_resource" "instance-wait-poweroff" {
     EOF
   }
 
-  depends_on = [ "null_resource.cleanup-shutdown-action" ]
+  depends_on = [ null_resource.cleanup-shutdown-action ]
 }
 
 # establish local var values
@@ -256,7 +257,7 @@ resource "null_resource" "instance-snapshot-action" {
     EOF
   }
 
-  depends_on = [ "null_resource.instance-wait-poweroff" ]
+  depends_on = [ null_resource.instance-wait-poweroff ]
 }
 
 # destroy this droplet to prevent it from running up charges since DigitalOcean Droplets cost money even when powered
@@ -273,7 +274,7 @@ resource "null_resource" "instance-destroy" {
     EOF
   }
 
-  depends_on = [ "null_resource.instance-snapshot-action" ]
+  depends_on = [ null_resource.instance-snapshot-action ]
 }
 
 # force some Terraform log output so it is a little easier to immediately observe the final status
@@ -294,5 +295,5 @@ resource "null_resource" "action-status" {
       echo ""
     EOF
   }
-  depends_on = [ "null_resource.instance-snapshot-action" ]
+  depends_on = [ null_resource.instance-snapshot-action ]
 }
