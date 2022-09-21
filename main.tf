@@ -116,6 +116,7 @@ resource "digitalocean_droplet" "build-instance" {
   user_data = "${data.template_file.instance-userdata.rendered}"
 
   connection {
+    host = "${digitalocean_droplet.build-instance.ipv4_address}"
     type = "ssh"
     user = "root"
     timeout = "600"
@@ -138,7 +139,7 @@ resource "digitalocean_droplet" "build-instance" {
 # ===
 data "template_file" "opnsense-config-xml" {
   template = "${file("${path.module}/data/config-digitalocean.xml")}"
-  vars {
+  vars = {
     opnsense_root_passwd_data = "${bcrypt(var.root_passwd, 10)}"
   }
 }
@@ -154,7 +155,7 @@ data "template_file" "opnsense-syshook-sh" {
 # ===
 data "template_file" "opnsense-install-sh" {
   template = "${file("${path.module}/data/opnsense-install.sh")}"
-  vars {
+  vars = {
     opnsense_release = "${var.opnsense_release}"
     opnsense_config_data = "${base64gzip(data.template_file.opnsense-config-xml.rendered)}"
     opnsense_syshook_data = "${base64gzip(data.template_file.opnsense-syshook-sh.rendered)}"
