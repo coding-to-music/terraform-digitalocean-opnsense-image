@@ -109,8 +109,8 @@ resource "digitalocean_droplet" "build-instance" {
   backups = false     # pointless for this short-lived instance
   monitoring = true  # pointless for this short-lived instance
   ipv6 = "${var.digitalocean_ipv6}"
-  # private_networking = "${var.digitalocean_private_networking}"
-  vpc_uuid = "${var.digitalocean_private_networking}"
+  private_networking = "${var.digitalocean_private_networking}"
+  # vpc_uuid = "${var.digitalocean_private_networking}"
   ssh_keys = [ "${digitalocean_ssh_key.terraform-bootstrap-sshkey.id}" ]
 
   user_data = "${data.template_file.instance-userdata.rendered}"
