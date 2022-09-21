@@ -83,10 +83,10 @@ data "template_file" "instance-userdata" {
 # start this temporary build instance
 # ===
 resource "digitalocean_droplet" "build-instance" {
-  image = "${var.digitalocean_image}"
+  image = "${var.digitalocean_droplet_image}"
   name = "${var.hostname}"
-  region = "${var.digitalocean_region}"
-  size = "${var.digitalocean_size}"
+  region = "${var.digitalocean_droplet_region}"
+  size = "${var.digitalocean_droplet_size}"
   backups = false     # pointless for this short-lived instance
   monitoring = false  # pointless for this short-lived instance
   ipv6 = "${var.digitalocean_ipv6}"

@@ -18,7 +18,7 @@ output "provider" {
 
 output "region" {
   description = "The compute provider region identifier."
-  value = "${var.digitalocean_region}"
+  value = "${var.digitalocean_droplet_region}"
 }
 
 output "build_id" {

@@ -15,7 +15,7 @@ variable "opnsense_release" {
   description = "The OPNsense release to target for this image build"
 }
 
-variable "digitalocean_region" {
+variable "digitalocean_droplet_region" {
   description = "The DigitalOcean region-slug to start this digitalocean-droplet within (nyc1, sgp1, lon1, nyc3, ams3, fra1, tor1, sfo2, blr1)"
 }
 
@@ -36,12 +36,12 @@ variable "hostname" {
   default = "opnsense-cloud-image-builder"
 }
 
-variable "digitalocean_image" {
+variable "digitalocean_droplet_image" {
   description = "The DigitalOcean image to use as the base for this digitalocean-droplet."
   default = "freebsd-11-2-x64"
 }
 
-variable "digitalocean_size" {
+variable "digitalocean_droplet_size" {
   description = "The size to use for this digitalocean-droplet."
   default = "s-1vcpu-1gb"
 }
