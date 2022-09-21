@@ -1,0 +1,21 @@
+{
+  "name": "terraform-digitalocean-opnsense-image",
+  "version": "1.0.0",
+  "description": "Terraform module to create a Digital Ocean Droplet snapshot-image that can subsequently be used to start an OPNsense  instance within Digital Ocean.  * [OPNsense](https://www.opnsense.org/)  * [Digital Ocean](https://www.digitalocean.com/)",
+  "main": "index.js",
+  "scripts": {
+    "deploy": "git add . && git commit -m Build && git push",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ndejong/terraform-digitalocean-opnsense-image.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ndejong/terraform-digitalocean-opnsense-image/issues"
+  },
+  "homepage": "https://github.com/ndejong/terraform-digitalocean-opnsense-image#readme"
+}
