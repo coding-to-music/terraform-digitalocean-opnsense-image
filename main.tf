@@ -205,7 +205,7 @@ resource "null_resource" "cleanup-shutdown-action" {
       "rm -Rf /usr/home/freebsd",   # digitalocean
       "rm -Rf /var/log/*",
       "rm -Rf /root/.ssh",
-      "shutdown +20s"
+      "shutdown now"
     ]
   }
 
